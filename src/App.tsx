@@ -52,6 +52,11 @@ function App() {
     }
   };
 
+  const handleExampleSelect = (title: string, content: string) => {
+    setPages({ [title]: content });
+    setCurrentPage(title);
+  };
+
   return (
     <div className="relative">
       <div className="fixed top-4 left-4 z-10 flex gap-4 items-center">
@@ -65,16 +70,20 @@ function App() {
       </div>
 
       {Object.keys(pages).length === 0 ? (
-        <WorldPrompt onSubmit={handleWorldPromptSubmit} loading={loading} />
-          ) : (
-            <WikiPage 
-              currentTopic={currentPage}
-              pages={pages}
-              loading={loading}
-              onPageChange={handlePageChange}
-              onGenerateNewPage={handleGenerateNewPage}
-          />
-        )}
+        <WorldPrompt 
+          onSubmit={handleWorldPromptSubmit} 
+          onExampleSelect={handleExampleSelect}
+          loading={loading} 
+        />
+      ) : (
+        <WikiPage 
+          currentTopic={currentPage}
+          pages={pages}
+          loading={loading}
+          onPageChange={handlePageChange}
+          onGenerateNewPage={handleGenerateNewPage}
+        />
+      )}
     </div>
   )
 }

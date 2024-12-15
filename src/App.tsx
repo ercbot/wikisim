@@ -1,11 +1,15 @@
-import './App.css'
-import WikiPage from './components/wiki-page'
+import { useEffect } from 'react'
+import WikiPage from './components/WikiPage'
 
 function App() {
+  useEffect(() => {
+    // Add the theme class to the body when the app mounts
+    document.body.classList.add('theme-light');
+  }, []);
+
   return (
     <>
-      <h1>Infinite Wiki Sim</h1>
-      <WikiPage/>
+      <WikiPage />
     </>
   )
 }

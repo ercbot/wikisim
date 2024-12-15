@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { generateText } from 'ai';
 import { createGoogleGenerativeAI  } from "@ai-sdk/google"
 
+import Card from './srcl/Card';
+import MatrixLoader from './srcl/MatrixLoader';
+
+import styles from './WikiPage.module.scss';
+
 const google = createGoogleGenerativeAI({
   apiKey: import.meta.env.VITE_GEMINI_API_KEY,
 })
@@ -126,7 +131,7 @@ const WikiPage = () => {
           <button
             key={index}
             onClick={() => handleLinkClick(term)}
-            className="link-button"
+            className={styles.buttonLink}
           >
             {term}
           </button>
@@ -136,40 +141,53 @@ const WikiPage = () => {
     });
   };
 
-  return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">{currentPage}</h1>
-        <div className="h-px bg-gray-200 w-full mb-4" />
-      </div>
+  const renderRecentPages = () => {
+    return recentPages.slice().reverse().map((page_topic, index) => (
+      <span>
+        <button
+          key={page_topic}
+          onClick={() => handleLinkClick(page_topic)}
+          className={styles.buttonLink}
+        >
+          {page_topic}
+        </button>
+        {index < recentPages.length - 1 && ' > '}
+      </span>
       
-      <div className="prose prose-lg">
-        {loading ? (
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          </div>
-        ) : (
-          <p className="leading-relaxed">{renderContent()}</p>
-        )}
+      
+    ));
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: '50rem',
+      margin: '0 auto',
+      padding: '1rem',
+      gap: '2rem'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <h1 className='text-4xl font-bold'>{currentPage}</h1>
+        <div/>
       </div>
 
-      <div className="mt-6 text-sm text-gray-500">
-        <h2 className="font-semibold mb-2">Recently Viewed Pages:</h2>
-        <ul className="list-disc pl-5">
-          {recentPages.map(page => (
-            <li key={page}>
-              <button 
-                onClick={() => handleLinkClick(page)}
-                className="text-blue-500 hover:underline"
-              >
-                {page}
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div>
+        {renderRecentPages()}
       </div>
+
+      <Card className='w-full'>
+        <div>
+          {loading ? (
+            <MatrixLoader rows={10} direction="left-to-right"/>
+          ) : (
+            <p>{renderContent()}</p>
+          )}
+        </div>
+      </Card>
 
     </div>
   );

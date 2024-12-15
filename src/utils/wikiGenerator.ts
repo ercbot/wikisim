@@ -40,10 +40,46 @@ Here are the 5 most recently generated wiki pages for context:
 Based on these existing entries and maintaining consistency with their style and content, please generate a new wiki article about: {{TOPIC}}
 `;
 
-export async function generateNewPage(topic: string, pages: { [key: string]: string }) {
+const first_page_context_prompt = `
+Generate the first page of the wiki based on the following prompt: {{PROMPT}}
+
+Include the Title of the page as the first line of the page in this format:
+
+<title>Title of the page</title>
+`;
+
+async function generateWithSystemPrompt(prompt: string) {
+  try {
+    const { text } = await generateText({
+      model: google("models/gemini-1.5-pro-latest"),
+      system: system_prompt,
+      prompt: prompt
+    });
+    return text;
+  } catch (error) {
+    console.error('Error generating text:', error);
+    throw error;
+  }
+}
+
+export async function generateInitialPage(initialPrompt: string) {
+    const text = await generateWithSystemPrompt(first_page_context_prompt.replace('{{PROMPT}}', initialPrompt));
+    
+    // Parse the text to get the title
+    const title = text.match(/<title>(.*)<\/title>/)?.[1];
+    if (!title) {
+      throw new Error('No title found in the generated text');
+    }
+
+    const pageContent = text.replace(/<title>.*<\/title>/, '').trim();
+
+    return { title, content: pageContent };
+}
+
+export async function generateNewPage(topic: string, existingPages: Record<string, string>) {
   try {
     // Prepare recent articles context
-    const recentArticlesContext = Object.entries(pages)
+    const recentArticlesContext = Object.entries(existingPages)
       .slice(0, 5)
       .map(([page, content]) => `${page}:\n${content}`)
       .join('\n\n');
@@ -52,11 +88,7 @@ export async function generateNewPage(topic: string, pages: { [key: string]: str
       .replace('{{RECENT_ARTICLES}}', recentArticlesContext)
       .replace('{{TOPIC}}', topic);
 
-    const { text } = await generateText({
-      model: google("models/gemini-1.5-pro-latest"),
-      system: system_prompt,
-      prompt: customizedPrompt
-    });
+    const text = await generateWithSystemPrompt(customizedPrompt);
 
     return text;
   } catch (error) {

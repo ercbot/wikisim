@@ -46,14 +46,15 @@ function App() {
 
   return (
     <div className="relative">
-      { recentPages.length > 0 ? (
-        <div className="fixed top-4 left-4 z-10">
+      <div className="fixed top-4 left-4 z-10 flex items-center gap-4">
+        <img src="/logo.svg" alt="logo" className="w-12 h-12" />
+        { recentPages.length > 0 && (
           <RecentPages 
             recentPages={recentPages}
             onPageClick={handlePageChange}
           />
-        </div>
-      ) : null }
+        )}
+      </div>
 
       <WikiPage 
         currentTopic={currentPage}

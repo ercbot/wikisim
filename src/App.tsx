@@ -57,10 +57,21 @@ function App() {
     setCurrentPage(title);
   };
 
+  const handleReset = () => {
+    setCurrentPage('');
+    setPages({});
+    setRecentPages([]);
+  };
+
   return (
     <div className="relative">
       <div className="fixed top-4 left-4 z-10 flex gap-4 items-center">
-        <img src="/logo.svg" alt="logo" className="w-12 h-12" />
+        <img 
+          src="/logo.svg" 
+          alt="logo" 
+          className="w-12 h-12 cursor-pointer hover:opacity-80 transition-opacity" 
+          onClick={handleReset}
+        />
         {recentPages.length > 0 && (
           <RecentPages 
             recentPages={recentPages}

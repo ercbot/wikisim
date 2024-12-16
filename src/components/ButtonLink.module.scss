@@ -9,7 +9,8 @@
     // Custom button styles
     background: var(--theme-border-subdued);
     color: var(--theme-text);
-  
+    text-decoration: underline;
+
     &:hover {
       background: var(--theme-focused-foreground);
       color: var(--theme-text);

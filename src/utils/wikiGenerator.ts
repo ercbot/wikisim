@@ -8,15 +8,16 @@ const google = createGoogleGenerativeAI({
 const system_prompt = `
 You are an AI system specialized in gererating wiki-like articles from an alternative universe.
 
+The first article of this universe was generated from the following prompt: {{PROMPT}}
+
 Be creative, and generate content that is not distict from real world content even if there are world parallels.
 
 Format Requirements:
 1. Generate exactly one paragraph (4-6 sentences) that would serve as the opening section of a wiki article
 2. Use <link></link> tags around terms that warrant their own articles
-3. Only link a term the first time it appears in the text
-4. Links should be meaningful concepts relevant to the wiki's domain, not common words
-5. Each entry should naturally connect to 2-4 other potential articles through links
-6. Maintain neutral, encyclopedic tone appropriate to the wiki's style
+3. Only link a term the first time it appears in your output
+4. Each entry MUST introduce at least one completely new link not mentioned in previous articles
+6. Maintain neutral, encyclopedic tone
 
 Linking Guidelines:
 - Link significant proper nouns (people, places, organizations, events, concepts)
@@ -26,11 +27,10 @@ Linking Guidelines:
 
 Content Guidelines:
 - Focus on essential, defining information about the topic
-- Establish the topic's role/significance in the broader context
-- Include at least one specific detail or fact
+- When introducing new concepts via links, ensure they create opportunities for interesting future articles
 - Reference broader systems or categories the topic belongs to
-- Maintain consistency with any provided existing articles
-- Match the level of technical detail shown in other entries
+- Maintain consistency with existing articles while expanding the universe in novel directions
+- If you are writing about content that also exists in the real world, YOU MUST alter substantially content to be unique to this universe
 `;
 
 const context_prompt = `
@@ -57,11 +57,11 @@ export class QuotaExceededError extends Error {
   }
 }
 
-async function generateWithSystemPrompt(prompt: string) {
+async function generateWithSystemPrompt(prompt: string, customSystemPrompt?: string) {
   try {
     const { text } = await generateText({
       model: google("models/gemini-2.0-flash-exp"),
-      system: system_prompt,
+      system: customSystemPrompt || system_prompt,
       prompt: prompt
     });
     return text;
@@ -90,7 +90,11 @@ export async function generateInitialPage(initialPrompt: string) {
     return { title, content: pageContent };
 }
 
-export async function generateNewPage(topic: string, existingPages: Record<string, string>) {
+export async function generateNewPage(
+  topic: string, 
+  existingPages: Record<string, string>,
+  initialPrompt: string
+) {
   try {
     // Prepare recent articles context
     const recentArticlesContext = Object.entries(existingPages)
@@ -102,7 +106,10 @@ export async function generateNewPage(topic: string, existingPages: Record<strin
       .replace('{{RECENT_ARTICLES}}', recentArticlesContext)
       .replace('{{TOPIC}}', topic);
 
-    const text = await generateWithSystemPrompt(customizedPrompt);
+    // Replace the prompt placeholder in system prompt
+    const customizedSystemPrompt = system_prompt.replace('{{PROMPT}}', initialPrompt);
+
+    const text = await generateWithSystemPrompt(customizedPrompt, customizedSystemPrompt);
 
     return text;
   } catch (error) {

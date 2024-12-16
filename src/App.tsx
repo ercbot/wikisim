@@ -12,6 +12,7 @@ function App() {
   const [recentPages, setRecentPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [initialPrompt, setInitialPrompt] = useState<string>('');
 
   useEffect(() => {
     document.body.classList.add('theme-light');
@@ -30,7 +31,7 @@ function App() {
     setError(null);
     try {
       handlePageChange(topic);
-      const newPageContent = await generateNewPage(topic, pages);
+      const newPageContent = await generateNewPage(topic, pages, initialPrompt);
       setPages(prevPages => ({
         ...prevPages,
         [topic]: newPageContent,
@@ -47,6 +48,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
+      setInitialPrompt(prompt);
       const { title, content } = await generateInitialPage(prompt);
       setPages({ [title]: content });
       setCurrentPage(title);
@@ -67,6 +69,7 @@ function App() {
     setCurrentPage('');
     setPages({});
     setRecentPages([]);
+    setInitialPrompt('');
   };
 
   return (

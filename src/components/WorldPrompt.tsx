@@ -23,7 +23,7 @@ const EXAMPLE_FIRST_ARTICLES = {
   "time goes topsy turvy at a small town diner": {
     "Temporal Resonance": `<link>Temporal Resonance</link> refers to the peculiar phenomenon observed at <link>Murphy's All-Night Diner</link> in Millbrook, Kansas, where patrons occasionally experience overlapping moments from different time periods while seated in specific booths. First documented by regular customer <link>Sarah Chen</link> in her viral TikTok series in 2021, the resonance manifests as brief glimpses of past and future versions of the diner, with sounds and smells from different eras bleeding through. The <link>Department of Temporal Affairs</link> has classified the phenomenon as a Class-3 Stable Time Anomaly, theorizing it may be connected to the diner's location atop a suspected quantum faultline. While mostly harmless, the resonance has turned Murphy's into a popular destination for amateur chronology enthusiasts and paranormal researchers.`
   },
-  "Tesla invents a weapon that turns the tide of WW2": {
+  "Tesla's work leads to a weapon that turns the tide of WW2": {
     "The Baltic Offensive": `The <link>Baltic Offensive</link> (August 12-September 28, 1944) marked the unexpected turning point of the <link>Second World War</link> following <link>Tesla-Szilard Resonator</link> deployment by Polish-Lithuanian forces. Under the command of General <link>Kazimierz Tabor</link>, the Allied Baltic Fleet used the experimental weapon to disable German mechanized divisions across a 300-mile front, leading to the collapse of Army Group North. The offensive's success prompted <link>Operation Amber Dawn</link>, which saw the rapid liberation of Eastern Europe through widespread deployment of resonator technology. Modern historians consider this campaign the key catalyst for the war's early conclusion in March 1945, though debate continues over the ethical implications of using Tesla-derived weapons against human targets.`
   }
 };
@@ -69,7 +69,7 @@ function WorldPrompt({ onSubmit, onExampleSelect, loading = false, error }: Worl
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4 pt-24">
       <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Infinite World Sim</h1>

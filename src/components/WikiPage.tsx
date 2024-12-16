@@ -47,22 +47,20 @@ const WikiPage: React.FC<WikiPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full space-y-8">
-        <h1 className="text-4xl font-bold">{currentTopic}</h1>
+    <div className="max-w-2xl w-full mx-auto space-y-8 pt-24">
+      
+        <h1 className="text-4xl font-bold text-center">{currentTopic}</h1>
         
         {loading ? (
-          <div>
             <MatrixLoader rows={15}/>
-          </div>
         ) : (
-          <Card className='w-full'>
+          <Card>
             <div>
               <p>{renderContent()}</p>
             </div>
           </Card>
         )}
-      </div>
+
     </div>
   );
 };

@@ -70,7 +70,7 @@ function App() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen">
       {error && (
         <div className="fixed top-4 right-4 z-50">
           <Card className="bg-red-50">
@@ -91,36 +91,44 @@ function App() {
         </div>
       )}
 
-      <div className="fixed top-4 left-4 z-10 flex gap-4 items-center">
-        <img 
-          src="/logo.svg" 
-          alt="logo" 
-          className="w-12 h-12 cursor-pointer hover:opacity-80 transition-opacity" 
-          onClick={handleReset}
-        />
-        {recentPages.length > 0 && (
-          <RecentPages 
-            recentPages={recentPages}
-            onPageClick={handlePageChange}
+      {/* Header */}
+      <div className="z-40 p-4">
+        <div className="flex flex-wrap gap-4 items-center">
+          <img 
+            src="/logo.svg" 
+            alt="logo" 
+            className="w-10 h-10 sm:w-12 sm:h-12 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={handleReset}
           />
-        )}
+          {recentPages.length > 0 && (
+            <RecentPages 
+              recentPages={recentPages}
+              onPageClick={handlePageChange}
+            />
+          )}
+        </div>
       </div>
 
-      {Object.keys(pages).length === 0 ? (
-        <WorldPrompt 
-          onSubmit={handleWorldPromptSubmit} 
-          onExampleSelect={handleExampleSelect}
-          loading={loading}
-        />
-      ) : (
-        <WikiPage 
-          currentTopic={currentPage}
-          pages={pages}
-          loading={loading}
-          onPageChange={handlePageChange}
-          onGenerateNewPage={handleGenerateNewPage}
-        />
-      )}
+      {/* Main content */}
+      <main className="lg:pt-12">
+        <div className='max-h-[calc(100vh-12rem)] overflow-y-auto'>
+        {Object.keys(pages).length === 0 ? (
+          <WorldPrompt 
+            onSubmit={handleWorldPromptSubmit} 
+            onExampleSelect={handleExampleSelect}
+            loading={loading}
+          />
+        ) : (
+          <WikiPage 
+            currentTopic={currentPage}
+            pages={pages}
+            loading={loading}
+            onPageChange={handlePageChange}
+            onGenerateNewPage={handleGenerateNewPage}
+          />
+        )}
+        </div>
+      </main>
     </div>
   )
 }

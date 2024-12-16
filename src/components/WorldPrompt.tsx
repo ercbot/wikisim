@@ -74,7 +74,7 @@ function WorldPrompt({ onSubmit, onExampleSelect, loading = false, error }: Worl
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Infinite World Sim</h1>
           <p className="text-lg text-gray-600 mb-8">
-            Imagine a world where...
+            {loading || exampleLoading ? prompt : "Imagine a world where..."}
           </p>
         </div>
         

@@ -6,7 +6,9 @@ const google = createGoogleGenerativeAI({
 });
 
 const system_prompt = `
-You are a specialized wiki content generator. Your role is to create interconnected encyclopedia-style entries that match the tone, style and context of the existing wiki content. You will be provided context about the type of wiki and any existing entries.
+You are an AI system specialized in gererating wiki-like articles from an alternative universe.
+
+Be creative, and generate content that is not distict from real world content even if there are world parallels.
 
 Format Requirements:
 1. Generate exactly one paragraph (4-6 sentences) that would serve as the opening section of a wiki article
@@ -18,7 +20,6 @@ Format Requirements:
 
 Linking Guidelines:
 - Link significant proper nouns (people, places, organizations, events, concepts)
-- Link technical terms or jargon specific to the wiki's domain
 - Link to broader categories or systems the topic belongs to
 - Don't link common words or phrases
 - Don't link modifiers or partial terms
@@ -48,15 +49,28 @@ Include the Title of the page as the first line of the page in this format:
 <title>Title of the page</title>
 `;
 
+// Add custom error class
+export class QuotaExceededError extends Error {
+  constructor(message = 'API quota exceeded. Please try again later.') {
+    super(message);
+    this.name = 'QuotaExceededError';
+  }
+}
+
 async function generateWithSystemPrompt(prompt: string) {
   try {
     const { text } = await generateText({
-      model: google("models/gemini-1.5-pro-latest"),
+      model: google("models/gemini-2.0-flash-exp"),
       system: system_prompt,
       prompt: prompt
     });
     return text;
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && 
+        (error.message.includes('Resource has been exhausted') || 
+         error.message.includes('quota'))) {
+      throw new QuotaExceededError();
+    }
     console.error('Error generating text:', error);
     throw error;
   }

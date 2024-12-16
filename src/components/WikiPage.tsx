@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './srcl/Card';
 import MatrixLoader from './srcl/MatrixLoader';
-import styles from './WikiPage.module.scss';
+import ButtonLink from './ButtonLink';
 
 interface WikiPageProps {
   currentTopic: string;
@@ -34,13 +34,12 @@ const WikiPage: React.FC<WikiPageProps> = ({
       if (part.startsWith('<link>') && part.endsWith('</link>')) {
         const term = part.replace('<link>', '').replace('</link>', '');
         return (
-          <button
+          <ButtonLink
             key={index}
             onClick={() => handleLinkClick(term)}
-            className={styles.buttonLink}
           >
             {term}
-          </button>
+          </ButtonLink>
         );
       }
       return <span key={index}>{part}</span>;
@@ -48,21 +47,22 @@ const WikiPage: React.FC<WikiPageProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center max-w-screen-md mx-auto p-1 gap-5">
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <h1 className='text-4xl font-bold'>{currentTopic}</h1>
-        <div/>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full space-y-8">
+        <h1 className="text-4xl font-bold">{currentTopic}</h1>
+        
+        {loading ? (
+          <div>
+            <MatrixLoader rows={15}/>
+          </div>
+        ) : (
+          <Card className='w-full'>
+            <div>
+              <p>{renderContent()}</p>
+            </div>
+          </Card>
+        )}
       </div>
-
-      <Card className='w-full'>
-        <div>
-          {loading ? (
-            <MatrixLoader rows={10} direction="left-to-right"/>
-          ) : (
-            <p>{renderContent()}</p>
-          )}
-        </div>
-      </Card>
     </div>
   );
 };

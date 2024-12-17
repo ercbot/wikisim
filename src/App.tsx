@@ -3,22 +3,28 @@ import WikiPage from './components/WikiPage'
 import RecentPages from './components/RecentPages'
 import WorldPrompt from './components/WorldPrompt'
 import Card from './components/srcl/Card'
+import WikiGraph from './components/WikiGraph'
 
 import { generateNewPage, generateInitialPage, QuotaExceededError } from './utils/wikiGenerator'
+import ActionButton from './components/srcl/ActionButton'
+import { WikiGraphData, WikiNode } from './types';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('');
-  const [pages, setPages] = useState<{ [key: string]: string }>({});
+  const [pages, setPages] = useState<WikiGraphData>({});
   const [recentPages, setRecentPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [initialPrompt, setInitialPrompt] = useState<string>('');
+  const [showGraph, setShowGraph] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
     document.body.classList.add('theme-light');
   }, []);
 
   const handlePageChange = (topic: string) => {
+    setHistory(prev => [...prev, currentPage].filter(Boolean));
     setRecentPages(prevRecent => {
       const newRecent = [currentPage, ...prevRecent.filter(p => p !== currentPage)].slice(0, 5);
       return newRecent;
@@ -26,15 +32,35 @@ function App() {
     setCurrentPage(topic);
   };
 
+  const handleBack = () => {
+    if (history.length > 0) {
+      const previousPage = history[history.length - 1];
+      setCurrentPage(previousPage);
+      setHistory(prev => prev.slice(0, -1));
+    }
+  };
+
+  const extractLinks = (content: string): string[] => {
+    const linkRegex = /<link>(.*?)<\/link>/g;
+    const matches = [...content.matchAll(linkRegex)];
+    return matches.map(match => match[1]);
+  };
+
   const handleGenerateNewPage = async (topic: string) => {
     setLoading(true);
     setError(null);
     try {
       handlePageChange(topic);
-      const newPageContent = await generateNewPage(topic, pages, initialPrompt);
+      const content = await generateNewPage(topic, recentPages, pages, initialPrompt);
+      const outlinks = extractLinks(content);
+      
       setPages(prevPages => ({
         ...prevPages,
-        [topic]: newPageContent,
+        [topic]: {
+          topic,
+          content,
+          outlinks,
+        },
       }));
     } catch (error) {
       console.error('Error generating page:', error);
@@ -50,7 +76,15 @@ function App() {
     try {
       setInitialPrompt(prompt);
       const { title, content } = await generateInitialPage(prompt);
-      setPages({ [title]: content });
+      const outlinks = extractLinks(content);
+      
+      setPages({
+        [title]: {
+          topic: title,
+          content,
+          outlinks,
+        },
+      });
       setCurrentPage(title);
     } catch (error) {
       console.error('Error generating initial page:', error);
@@ -61,7 +95,14 @@ function App() {
   };
 
   const handleExampleSelect = (title: string, content: string) => {
-    setPages({ [title]: content });
+    const outlinks = extractLinks(content);
+    setPages({
+      [title]: {
+        topic: title,
+        content,
+        outlinks,
+      },
+    });
     setCurrentPage(title);
   };
 
@@ -115,21 +156,44 @@ function App() {
       {/* Main content */}
       <main className="lg:pt-12">
         <div className='max-h-[calc(100vh-12rem)] overflow-y-auto'>
-        {Object.keys(pages).length === 0 ? (
-          <WorldPrompt 
-            onSubmit={handleWorldPromptSubmit} 
-            onExampleSelect={handleExampleSelect}
-            loading={loading}
-          />
-        ) : (
-          <WikiPage 
-            currentTopic={currentPage}
-            pages={pages}
-            loading={loading}
-            onPageChange={handlePageChange}
-            onGenerateNewPage={handleGenerateNewPage}
-          />
-        )}
+          {Object.keys(pages).length === 0 ? (
+            <WorldPrompt 
+              onSubmit={handleWorldPromptSubmit} 
+              onExampleSelect={handleExampleSelect}
+              loading={loading}
+            />
+          ) : (
+            <>
+              {/* Show either WikiPage or WikiGraph based on showGraph state */}
+              {showGraph ? (
+                <div className="h-[calc(100vh-12rem)]">
+                  <WikiGraph
+                    pages={pages}
+                    currentPage={currentPage}
+                    onNodeClick={handlePageChange}
+                  />
+                </div>
+              ) : (
+                <WikiPage 
+                  currentTopic={currentPage}
+                  content={pages[currentPage]?.content ?? ''}
+                  loading={loading}
+                  onPageChange={handlePageChange}
+                  onGenerateNewPage={handleGenerateNewPage}
+                  pages={pages}
+                />
+              )}
+              
+              {/* Navigation Controls */}
+              <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-50">
+                <ActionButton
+                  onClick={() => setShowGraph(prev => !prev)}
+                >
+                  {showGraph ? 'Show Page' : 'Show Graph'}
+                </ActionButton>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>

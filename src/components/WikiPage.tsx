@@ -2,34 +2,40 @@ import React from 'react';
 import Card from './srcl/Card';
 import MatrixLoader from './srcl/MatrixLoader';
 import ButtonLink from './ButtonLink';
+import { WikiGraphData } from '../types';
 
 interface WikiPageProps {
   currentTopic: string;
-  pages: { [key: string]: string };
+  content: string;
   loading: boolean;
   onPageChange: (topic: string) => void;
   onGenerateNewPage: (topic: string) => void;
+  pages: WikiGraphData;
 }
 
 const WikiPage: React.FC<WikiPageProps> = ({ 
   currentTopic, 
-  pages, 
+  content, 
   loading,
   onPageChange, 
-  onGenerateNewPage 
+  onGenerateNewPage,
+  pages 
 }) => {
   const handleLinkClick = (topic: string) => {
-    if (pages[topic]) {
+    console.log('Link clicked:', topic);
+    if (pages[topic]?.content) {
+      console.log('Navigating to existing page');
       onPageChange(topic);
     } else {
+      console.log('Generating new page');
       onGenerateNewPage(topic);
     }
   };
 
   const renderContent = () => {
-    if (!pages[currentTopic]) return null;
+    if (!content) return null;
 
-    const parts = pages[currentTopic].split(/(<link>.*?<\/link>)/);
+    const parts = content.split(/(<link>.*?<\/link>)/);
     return parts.map((part, index) => {
       if (part.startsWith('<link>') && part.endsWith('</link>')) {
         const term = part.replace('<link>', '').replace('</link>', '');

@@ -1,5 +1,6 @@
 import { generateText } from 'ai';
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { WikiGraphData } from '../types';
 
 const google = createGoogleGenerativeAI({
   apiKey: import.meta.env.VITE_GEMINI_API_KEY,
@@ -92,14 +93,15 @@ export async function generateInitialPage(initialPrompt: string) {
 
 export async function generateNewPage(
   topic: string, 
-  existingPages: Record<string, string>,
+  recentPages: string[],
+  wikiPages: WikiGraphData,
   initialPrompt: string
 ) {
   try {
-    // Prepare recent articles context
-    const recentArticlesContext = Object.entries(existingPages)
-      .slice(0, 5)
-      .map(([page, content]) => `${page}:\n${content}`)
+    // Get Recent Page Content
+    const recentArticlesContext = recentPages
+      .filter(page => wikiPages[page]) // Filter out any missing pages
+      .map(page => `${page}:\n${wikiPages[page].content}`)
       .join('\n\n');
 
     const customizedPrompt = context_prompt
@@ -116,4 +118,4 @@ export async function generateNewPage(
     console.error('Error generating page:', error);
     throw error;
   }
-} 
+};

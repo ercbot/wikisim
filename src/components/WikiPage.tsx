@@ -22,13 +22,18 @@ const WikiPage: React.FC<WikiPageProps> = ({
   pages 
 }) => {
   const handleLinkClick = (topic: string) => {
-    console.log('Link clicked:', topic);
-    if (pages[topic]?.content) {
+    // Convert topic to Title Case
+    const titleCaseTopic = topic.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    console.log('Link clicked:', titleCaseTopic);
+    if (pages[titleCaseTopic]?.content) {
       console.log('Navigating to existing page');
-      onPageChange(topic);
+      onPageChange(titleCaseTopic);
     } else {
       console.log('Generating new page');
-      onGenerateNewPage(topic);
+      onGenerateNewPage(titleCaseTopic);
     }
   };
 

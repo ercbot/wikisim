@@ -33,7 +33,11 @@ function App() {
   const extractLinks = (content: string): string[] => {
     const linkRegex = /<link>(.*?)<\/link>/g;
     const matches = [...content.matchAll(linkRegex)];
-    return matches.map(match => match[1]);
+    return matches.map(match => 
+      match[1].split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+    );
   };
 
   const handleGenerateNewPage = async (topic: string) => {

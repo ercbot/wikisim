@@ -18,6 +18,7 @@ import { WikiGraphData } from '../types';
 // Assuming the components are correctly typed in their own files
 import FloatingEdge from './graph/FloatingEdge.tsx';
 import FloatingConnectionLine from './graph/FloatingConnectionLine.tsx';
+import './graph/graph.css';
 
 interface WikiGraphProps {
   pages: WikiGraphData;
@@ -140,7 +141,7 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
   }, [fitView]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full wiki-graph">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -152,6 +153,8 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}
         maxZoom={1.5}
+        nodesConnectable={false}
+        connectOnClick={false}
       >
         <Background />
         <Controls 

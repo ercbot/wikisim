@@ -1,18 +1,23 @@
-import { useCallback, useLayoutEffect } from 'react';
-import ReactFlow, {
+import { useCallback, useLayoutEffect, useEffect } from 'react';
+import {
+  ReactFlow,
   Node,
   Edge,
   Background,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   useReactFlow,
   ReactFlowProvider,
   MarkerType,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+  addEdge,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { WikiGraphData } from '../types';
+
+// Assuming the components are correctly typed in their own files
+import FloatingEdge from './graph/FloatingEdge.tsx';
+import FloatingConnectionLine from './graph/FloatingConnectionLine.tsx';
 
 interface WikiGraphProps {
   pages: WikiGraphData;
@@ -20,14 +25,17 @@ interface WikiGraphProps {
   onNodeClick: (topic: string) => void;
 }
 
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
 // Create a wrapper component that uses the hooks
 const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => {
   const { fitView } = useReactFlow();
-
-  // Create nodes and edges from pages
-  const createNodesAndEdges = useCallback(() => {
+  
+  // Create initial nodes
+  const createInitialNodes = useCallback(() => {
     const nodes: Node[] = [];
-    const edges: Edge[] = [];
     
     // Calculate radius based on number of nodes
     const nodeCount = Object.keys(pages).length;
@@ -35,17 +43,16 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
     const radius = isMobile ? 
       Math.min(window.innerHeight / 4, window.innerWidth / 2) : 
       200;
-
-    // Create nodes in a circle
+    
     Object.values(pages).forEach((page, index) => {
-      const angle = (index * (2 * Math.PI / nodeCount));
       const isActive = page.topic === currentPage;
-      
+      const angle = (index / Object.keys(pages).length) * 2 * Math.PI;
+
       nodes.push({
         id: page.topic,
         data: { 
           label: page.topic,
-          isActive: isActive
+          isActive: page.topic === currentPage
         },
         position: {
           x: Math.cos(angle) * radius,
@@ -62,33 +69,54 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
           transition: 'background-color 0.3s ease',
         },
       });
+    });
+    return nodes;
+  }, [pages, currentPage]);
 
-      // Create edges from outlinks
+  // Create initial edges
+  const createInitialEdges = useCallback(() => {
+    const edges: Edge[] = [];
+    Object.values(pages).forEach((page) => {
       page.outlinks.forEach(target => {
         if (pages[target]) {
           edges.push({
             id: `${page.topic}-${target}`,
             source: page.topic,
             target,
+            type: 'floating',
             style: { stroke: '#000000' },
-            type: 'straight', // straight edge style
             markerEnd: {
-              type: MarkerType.Arrow,
-              width: 10,
-              height: 10,
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 30,
               color: '#000000',
+              strokeWidth: 2,
             },
           });
         }
       });
     });
+    return edges;
+  }, [pages]);
 
-    return { nodes, edges };
-  }, [pages, currentPage]);
+  // Initialize states with created nodes
+  const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
+  const [edges, setEdges, onEdgesChange] = useEdgesState(createInitialEdges());
 
-  const { nodes: initialNodes, edges: initialEdges } = createNodesAndEdges();
-  const [nodes, setNodes] = useNodesState(initialNodes);
-  const [edges] = useEdgesState(initialEdges);
+  // Update nodes when currentPage changes
+  useEffect(() => {
+    setNodes(nodes => nodes.map(node => ({
+      ...node,
+      data: {
+        ...node.data,
+        isActive: node.id === currentPage
+      },
+      style: {
+        ...node.style,
+        background: node.id === currentPage ? '#5cff3b' : '#e0e0e0',
+      },
+    })));
+  }, [currentPage, setNodes]);
 
   const handleNodeClick = useCallback(
     (_: any, node: Node) => {
@@ -96,12 +124,6 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
     },
     [onNodeClick]
   );
-
-  // Update nodes when currentPage changes
-  useLayoutEffect(() => {
-    const { nodes: newNodes } = createNodesAndEdges();
-    setNodes(newNodes);
-  }, [currentPage, createNodesAndEdges, setNodes]);
 
   // Refit view on resize and initial load
   useLayoutEffect(() => {
@@ -122,7 +144,10 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        onNodesChange={onNodesChange}
         onNodeClick={handleNodeClick}
+        edgeTypes={edgeTypes}
+        connectionLineComponent={FloatingConnectionLine}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}
@@ -131,7 +156,6 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
         <Background />
         <Controls 
           position="bottom-right"
-          style={{ bottom: 100 }} // Move above the action buttons
         />
       </ReactFlow>
     </div>

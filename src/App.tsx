@@ -17,27 +17,17 @@ function App() {
   const [error, setError] = useState<Error | null>(null);
   const [initialPrompt, setInitialPrompt] = useState<string>('');
   const [showGraph, setShowGraph] = useState(false);
-  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
     document.body.classList.add('theme-light');
   }, []);
 
   const handlePageChange = (topic: string) => {
-    setHistory(prev => [...prev, currentPage].filter(Boolean));
     setRecentPages(prevRecent => {
       const newRecent = [currentPage, ...prevRecent.filter(p => p !== currentPage)].slice(0, 5);
       return newRecent;
     });
     setCurrentPage(topic);
-  };
-
-  const handleBack = () => {
-    if (history.length > 0) {
-      const previousPage = history[history.length - 1];
-      setCurrentPage(previousPage);
-      setHistory(prev => prev.slice(0, -1));
-    }
   };
 
   const extractLinks = (content: string): string[] => {
@@ -111,6 +101,7 @@ function App() {
     setPages({});
     setRecentPages([]);
     setInitialPrompt('');
+    setShowGraph(false);
   };
 
   return (

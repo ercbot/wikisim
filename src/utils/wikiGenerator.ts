@@ -42,13 +42,7 @@ Here are the 5 most recently generated wiki pages for context:
 Based on these existing entries and maintaining consistency with their style and content, please generate a new wiki article about: {{TOPIC}}
 `;
 
-const first_page_context_prompt = `
-Generate the first page of the wiki based on the following prompt: {{PROMPT}}
-
-Include the Title of the page as the first line of the page in this format:
-
-<title>Title of the page</title>
-`;
+const first_page_context_prompt = (await import('../prompts/new_page.txt?raw')).default;
 
 // Add custom error class
 export class QuotaExceededError extends Error {
@@ -80,15 +74,18 @@ async function generateWithSystemPrompt(prompt: string, customSystemPrompt?: str
 export async function generateInitialPage(initialPrompt: string) {
     const text = await generateWithSystemPrompt(first_page_context_prompt.replace('{{PROMPT}}', initialPrompt));
     
-    // Parse the text to get the title
-    const title = text.match(/<title>(.*)<\/title>/)?.[1];
-    if (!title) {
-      throw new Error('No title found in the generated text');
+    // Parse the text to get the title and content
+    const titleMatch = text.match(/<title>(.*?)<\/title>/);
+    const contentMatch = text.match(/<content>(.*?)<\/content>/s); // 's' flag for multiline matching
+    
+    if (!titleMatch || !contentMatch) {
+      throw new Error('Invalid article format - missing title or content');
     }
 
-    const pageContent = text.replace(/<title>.*<\/title>/, '').trim();
-
-    return { title, content: pageContent };
+    return {
+      title: titleMatch[1].trim(),
+      content: contentMatch[1].trim()
+    };
 }
 
 export async function generateNewPage(

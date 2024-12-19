@@ -53,6 +53,14 @@ function App() {
       setInitialPrompt(prompt);
       const node = await generateInitialPage(prompt);
       graph.addNode(node);
+      // Add in the nodes that were linked to, but haven't been generated yet
+      const linkedNodes = graph.getLinkedNodes(node.topic);
+      for (const linkedNode of linkedNodes) {
+        if (!graph.hasNode(linkedNode.topic)) {
+          graph.addNode(linkedNode);
+        }
+      }
+
       setGraph(graph);
       setCurrentPage(node.topic);
     } catch (error) {
@@ -61,13 +69,6 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleExampleSelect = (title: string, content: string) => {
-    const node = new WikiNode(title, content);
-    graph.addNode(node);
-    setGraph(graph);
-    setCurrentPage(title);
   };
 
   const handleReset = () => {
@@ -119,12 +120,11 @@ function App() {
       </div>
 
       {/* Main content */}
-      <main className="lg:pt-12">
+      <main>
         <div className='max-h-[calc(100vh-12rem)] overflow-y-auto'>
           {graph.nodeCount === 0 ? (
             <WorldPrompt 
-              onSubmit={handleWorldPromptSubmit} 
-              onExampleSelect={handleExampleSelect}
+              onSubmit={handleWorldPromptSubmit}
               loading={loading}
             />
           ) : (

@@ -8,29 +8,45 @@ import { QuotaExceededError } from '../utils/wikiGenerator';
 
 interface WorldPromptProps {
   onSubmit: (prompt: string) => void;
-  onExampleSelect: (title: string, content: string) => void;
   loading?: boolean;
   error?: Error | null;
 }
 
-const EXAMPLE_FIRST_ARTICLES = {
-  "we build cities on stilts to escape a sea of toxic mist": {
-    "Carmine": `Carmine, the majestic capital of the <link>Mistlands</link>, stands as a testament to human ingenuity amidst the perpetual crimson fog that gives the city its name. Founded in 847 AE by the <link>Mistwalker clans</link>, the city is built upon massive bronze pillars that elevate it above the toxic mists that plague the lowlands. Its distinctive architecture features spiraling copper spires and interconnected skyways, while the famous <link>Oxidation Gardens</link> showcase plants that have evolved to thrive in the metallic atmosphere. The city serves as both the political and spiritual center of the Mistlands, housing both the <link>Chamber of Atmospheric Sciences</link> and the ancient <link>Temple of the Copper Moon</link>, where the enigmatic <link>Mistpriests</link> conduct their arcane studies of the region's unique weather patterns.`
-  },
-  "a scientist invents AGI in the 1980s": {
-    "Grace Mitchell": `Grace Mitchell (1947-2018) revolutionized early <link>neural network architecture</link> through her groundbreaking work at <link>Threshold Labs</link> during the crucial period of 1982-1989. While her contemporaries focused on supervised learning, Mitchell's controversial <link>Autonomous Pattern Theory</link> proposed that truly intelligent systems would need to develop without human-labeled training data. Though initially dismissed by the academic establishment, her theories gained recognition after the success of the <link>Phoenix Project</link> in 1986, which demonstrated the first examples of genuine emergent behavior in artificial networks. Mitchell's later career was devoted to studying the ethical implications of machine consciousness, leading to her founding of the influential <link>Coalition for Responsible Intelligence</link>.`
-  },
-  "time goes topsy turvy at a small town diner": {
-    "Temporal Resonance": `<link>Temporal Resonance</link> refers to the peculiar phenomenon observed at <link>Murphy's All-Night Diner</link> in Millbrook, Kansas, where patrons occasionally experience overlapping moments from different time periods while seated in specific booths. First documented by regular customer <link>Sarah Chen</link> in her viral TikTok series in 2021, the resonance manifests as brief glimpses of past and future versions of the diner, with sounds and smells from different eras bleeding through. The <link>Department of Temporal Affairs</link> has classified the phenomenon as a Class-3 Stable Time Anomaly, theorizing it may be connected to the diner's location atop a suspected quantum faultline. While mostly harmless, the resonance has turned Murphy's into a popular destination for amateur chronology enthusiasts and paranormal researchers.`
-  },
-  "Tesla's work leads to a weapon that turns the tide of WW2": {
-    "The Baltic Offensive": `The <link>Baltic Offensive</link> (August 12-September 28, 1944) marked the unexpected turning point of the <link>Second World War</link> following <link>Tesla-Szilard Resonator</link> deployment by Polish-Lithuanian forces. Under the command of General <link>Kazimierz Tabor</link>, the Allied Baltic Fleet used the experimental weapon to disable German mechanized divisions across a 300-mile front, leading to the collapse of Army Group North. The offensive's success prompted <link>Operation Amber Dawn</link>, which saw the rapid liberation of Eastern Europe through widespread deployment of resonator technology. Modern historians consider this campaign the key catalyst for the war's early conclusion in March 1945, though debate continues over the ethical implications of using Tesla-derived weapons against human targets.`
-  }
+const EXAMPLE_PROMPTS = {
+  "Sentient Weather Patterns": "A civilization of conscious weather systems that communicate through storms and pressure changes",
+  "Library of Lost Time": "A library where each book contains a timeline that never happened in our universe",
+  "Dream Commerce City": "A metropolis where merchants trade in bottled dreams and filtered nightmares",
+  "Digital Forest Evolution": "A computer virus that evolved into a complex digital ecosystem inside abandoned server farms",
+  "Quantum Tea Ceremony": "A tea master who can split reality into parallel timelines with each pour of tea",
+  "Underground Color Mining": "A world where colors must be mined from deep underground and refined before they can be used",
+  "Memory Weaving Spiders": "Spider-like creatures that build webs from people's memories, creating vast architectural networks",
+  "Gravity-Bending Monks": "An order of monks who learned to manipulate local gravity through ancient breathing techniques",
+  "Living Architecture": "A city where buildings grow, reproduce, and compete for resources like living organisms",
+  "Time-Twisted Market": "A bazaar where the same object can be bought at different points in its timeline",
+  "Musical Mathematics": "A universe where mathematical equations express themselves as musical compositions",
+  "Emotional Alchemy": "Scientists who discovered how to distill and transform human emotions into physical substances",
+  "Cloud People Migration": "Nomadic societies living in floating cities who follow the patterns of wind currents",
+  "Light-Eating Trees": "Trees that consume light instead of water, creating zones of permanent darkness",
+  "Mechanical Evolution": "A planet where all evolution produced mechanical rather than biological life",
+  "Neural Constellation": "Stars that form a vast cosmic neural network, processing thoughts across light-years",
+  "Forbidden Frequencies": "A world where certain sound frequencies are outlawed for their reality-altering properties",
+  "Data Ocean Depths": "An ocean made entirely of living data streams with various ecological layers",
+  "Crystal Memory Empire": "A civilization that stores memories and knowledge in naturally growing crystals",
+  "Shadow Economics": "A society that uses captured shadows as their primary form of currency",
+  "Quantum Postal Service": "Mail carriers who deliver packages through quantum tunneling across probability spaces",
+  "Language Ecosystems": "Words that evolved into living organisms, forming complex linguistic ecosystems",
+  "Recursive Dreamlands": "A dream world where each dream contains another complete universe",
+  "Time-Fermented Magic": "Spells that must be aged like wine before they can be cast",
+  "Probability Farmers": "Farmers who cultivate and harvest probable futures from quantum fields",
+  "Mirror World Commerce": "Merchants who trade goods between our world and mirror dimensions",
+  "Thought Architecture": "Buildings constructed from solidified thoughts and memories",
+  "Void Salt Merchants": "Traders who harvest crystallized nothingness from the spaces between worlds",
+  "Sympathetic Stars": "A galaxy where stars influence each other's life cycles through cosmic empathy",
+  "Reality Radio Waves": "Radio waves that broadcast alternative versions of reality when tuned correctly"
 };
 
-function WorldPrompt({ onSubmit, onExampleSelect, loading = false, error }: WorldPromptProps) {
+function WorldPrompt({ onSubmit, loading = false, error }: WorldPromptProps) {
   const [prompt, setPrompt] = useState('');
-  const [exampleLoading, setExampleLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,23 +64,15 @@ function WorldPrompt({ onSubmit, onExampleSelect, loading = false, error }: Worl
     }
   };
 
-  const handleExampleClick = async (promptTitle: string, article: Record<string, string>) => {
-    setExampleLoading(true);
-    const [title, content] = Object.entries(article)[0];
-    
-    // Simulate loading delay when clicking an example
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    onExampleSelect(title, content);
-    setExampleLoading(false);
+  const handleExampleClick = (examplePrompt: string) => {
+    setPrompt(examplePrompt);
+    onSubmit(examplePrompt);
   };
 
-  const examples = Object.entries(EXAMPLE_FIRST_ARTICLES).map(([promptTitle, article]) => {
-    const [title, content] = Object.entries(article)[0];
+  const examples = Object.entries(EXAMPLE_PROMPTS).map(([promptTitle, examplePrompt]) => {
     return {
       title: promptTitle,
-      content: content,
-      onClick: () => handleExampleClick(promptTitle, article)
+      onClick: () => handleExampleClick(examplePrompt)
     };
   });
 
@@ -74,11 +82,11 @@ function WorldPrompt({ onSubmit, onExampleSelect, loading = false, error }: Worl
         <div className="text-center">
           <h1 className="text-4xl mb-4 sm:font-bold">Infinite World Sim</h1>
           <p className="text-lg text-gray-600 mb-8">
-            {loading || exampleLoading ? prompt : "Imagine a world where..."}
+            {loading ? prompt : "Imagine a world with..."}
           </p>
         </div>
         
-        {loading || exampleLoading ? (
+        {loading ? (
           <div>
             <MatrixLoader rows={15}/>
           </div>

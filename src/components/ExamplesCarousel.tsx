@@ -3,7 +3,6 @@ import ButtonLink from './ButtonLink';
 
 interface Example {
   title: string;
-  content: string;
   onClick: () => void;
 }
 

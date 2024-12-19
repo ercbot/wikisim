@@ -3,15 +3,15 @@ import WikiPage from './components/WikiPage'
 import RecentPages from './components/RecentPages'
 import WorldPrompt from './components/WorldPrompt'
 import Card from './components/srcl/Card'
-import WikiGraph from './components/WikiGraph'
+import WikiGraphDisplay from './components/WikiGraphDisplay'
 
 import { generateNewPage, generateInitialPage, QuotaExceededError } from './utils/wikiGenerator'
 import ActionButton from './components/srcl/ActionButton'
-import { WikiGraphData, WikiNode } from './types';
+import { WikiGraph, WikiNode } from './utils/wiki-types';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('');
-  const [pages, setPages] = useState<WikiGraphData>({});
+  const [graph, setGraph] = useState<WikiGraph>(new WikiGraph());
   const [recentPages, setRecentPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -30,32 +30,14 @@ function App() {
     setCurrentPage(topic);
   };
 
-  const extractLinks = (content: string): string[] => {
-    const linkRegex = /<link>(.*?)<\/link>/g;
-    const matches = [...content.matchAll(linkRegex)];
-    return matches.map(match => 
-      match[1].split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-    );
-  };
-
   const handleGenerateNewPage = async (topic: string) => {
     setLoading(true);
     setError(null);
     try {
       handlePageChange(topic);
-      const content = await generateNewPage(topic, recentPages, pages, initialPrompt);
-      const outlinks = extractLinks(content);
-      
-      setPages(prevPages => ({
-        ...prevPages,
-        [topic]: {
-          topic,
-          content,
-          outlinks,
-        },
-      }));
+      const node = await generateNewPage(topic, recentPages, graph, initialPrompt);
+      graph.addNode(node);
+      setGraph(graph);
     } catch (error) {
       console.error('Error generating page:', error);
       setError(error instanceof Error ? error : new Error('Unknown error occurred'));
@@ -69,17 +51,10 @@ function App() {
     setError(null);
     try {
       setInitialPrompt(prompt);
-      const { title, content } = await generateInitialPage(prompt);
-      const outlinks = extractLinks(content);
-      
-      setPages({
-        [title]: {
-          topic: title,
-          content,
-          outlinks,
-        },
-      });
-      setCurrentPage(title);
+      const node = await generateInitialPage(prompt);
+      graph.addNode(node);
+      setGraph(graph);
+      setCurrentPage(node.topic);
     } catch (error) {
       console.error('Error generating initial page:', error);
       setError(error instanceof Error ? error : new Error('Unknown error occurred'));
@@ -89,20 +64,15 @@ function App() {
   };
 
   const handleExampleSelect = (title: string, content: string) => {
-    const outlinks = extractLinks(content);
-    setPages({
-      [title]: {
-        topic: title,
-        content,
-        outlinks,
-      },
-    });
+    const node = new WikiNode(title, content);
+    graph.addNode(node);
+    setGraph(graph);
     setCurrentPage(title);
   };
 
   const handleReset = () => {
     setCurrentPage('');
-    setPages({});
+    setGraph(new WikiGraph());
     setRecentPages([]);
     setInitialPrompt('');
     setShowGraph(false);
@@ -151,7 +121,7 @@ function App() {
       {/* Main content */}
       <main className="lg:pt-12">
         <div className='max-h-[calc(100vh-12rem)] overflow-y-auto'>
-          {Object.keys(pages).length === 0 ? (
+          {graph.nodeCount === 0 ? (
             <WorldPrompt 
               onSubmit={handleWorldPromptSubmit} 
               onExampleSelect={handleExampleSelect}
@@ -162,8 +132,8 @@ function App() {
               {/* Show either WikiPage or WikiGraph based on showGraph state */}
               {showGraph ? (
                 <div className="h-[calc(100vh-12rem)]">
-                  <WikiGraph
-                    pages={pages}
+                  <WikiGraphDisplay
+                    graph={graph}
                     currentPage={currentPage}
                     onNodeClick={handlePageChange}
                   />
@@ -171,11 +141,11 @@ function App() {
               ) : (
                 <WikiPage 
                   currentTopic={currentPage}
-                  content={pages[currentPage]?.content ?? ''}
+                  content={graph.getNode(currentPage)?.content ?? ''}
                   loading={loading}
                   onPageChange={handlePageChange}
                   onGenerateNewPage={handleGenerateNewPage}
-                  pages={pages}
+                  graph={graph}
                 />
               )}
               

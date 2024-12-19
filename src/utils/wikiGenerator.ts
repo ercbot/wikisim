@@ -1,6 +1,6 @@
 import { generateText } from 'ai';
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { WikiGraphData } from '../types';
+import { WikiGraph, WikiNode } from './wiki-types';
 
 const google = createGoogleGenerativeAI({
   apiKey: import.meta.env.VITE_GEMINI_API_KEY,
@@ -82,23 +82,20 @@ export async function generateInitialPage(initialPrompt: string) {
       throw new Error('Invalid article format - missing title or content');
     }
 
-    return {
-      title: titleMatch[1].trim(),
-      content: contentMatch[1].trim()
-    };
+    return new WikiNode(titleMatch[1].trim(), contentMatch[1].trim());
 }
 
 export async function generateNewPage(
   topic: string, 
   recentPages: string[],
-  wikiPages: WikiGraphData,
+  wikiGraph: WikiGraph,
   initialPrompt: string
 ) {
   try {
     // Get Recent Page Content
     const recentArticlesContext = recentPages
-      .filter(page => wikiPages[page]) // Filter out any missing pages
-      .map(page => `${page}:\n${wikiPages[page].content}`)
+      .filter(page => wikiGraph.hasNode(page))
+      .map(page => `${page}:\n${wikiGraph.getNode(page)?.content}`)
       .join('\n\n');
 
     const customizedPrompt = context_prompt
@@ -110,9 +107,14 @@ export async function generateNewPage(
 
     const text = await generateWithSystemPrompt(customizedPrompt, customizedSystemPrompt);
 
-    return text;
+    const node = new WikiNode(topic, text);
+
+    return node;
   } catch (error) {
     console.error('Error generating page:', error);
     throw error;
   }
 };
+
+
+

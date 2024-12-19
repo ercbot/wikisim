@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './srcl/Card';
 import MatrixLoader from './srcl/MatrixLoader';
 import ButtonLink from './ButtonLink';
-import { WikiGraphData } from '../types';
+import { WikiGraph } from '../utils/wiki-types';
 
 interface WikiPageProps {
   currentTopic: string;
@@ -10,7 +10,7 @@ interface WikiPageProps {
   loading: boolean;
   onPageChange: (topic: string) => void;
   onGenerateNewPage: (topic: string) => void;
-  pages: WikiGraphData;
+  graph: WikiGraph;
 }
 
 const WikiPage: React.FC<WikiPageProps> = ({ 
@@ -19,7 +19,7 @@ const WikiPage: React.FC<WikiPageProps> = ({
   loading,
   onPageChange, 
   onGenerateNewPage,
-  pages 
+  graph 
 }) => {
   const handleLinkClick = (topic: string) => {
     // Convert topic to Title Case
@@ -28,7 +28,7 @@ const WikiPage: React.FC<WikiPageProps> = ({
       .join(' ');
     
     console.log('Link clicked:', titleCaseTopic);
-    if (pages[titleCaseTopic]?.content) {
+    if (graph.hasNode(titleCaseTopic)) {
       console.log('Navigating to existing page');
       onPageChange(titleCaseTopic);
     } else {
@@ -58,9 +58,8 @@ const WikiPage: React.FC<WikiPageProps> = ({
   };
 
   return (
-    <div className="max-w-2xl w-full mx-auto space-y-8 pt-24">
-      
-        <h1 className="text-4xl font-bold text-center">{currentTopic}</h1>
+    <div className="max-w-2xl w-full mx-auto space-y-8 pt-24">   
+        <h1 className="text-4xl sm:font-bold text-center">{currentTopic}</h1>
         
         {loading ? (
             <MatrixLoader rows={15}/>

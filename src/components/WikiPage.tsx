@@ -22,18 +22,14 @@ const WikiPage: React.FC<WikiPageProps> = ({
   graph 
 }) => {
   const handleLinkClick = (topic: string) => {
-    // Convert topic to Title Case
-    const titleCaseTopic = topic.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-    
-    console.log('Link clicked:', titleCaseTopic);
-    if (graph.hasNode(titleCaseTopic)) {
-      console.log('Navigating to existing page');
-      onPageChange(titleCaseTopic);
+    const currentNode = graph.getNode(currentTopic);
+    if (!currentNode) return;
+
+    const matchedTopic = currentNode.getLinkTarget(topic);
+    if (matchedTopic) {
+      onPageChange(matchedTopic);
     } else {
-      console.log('Generating new page');
-      onGenerateNewPage(titleCaseTopic);
+      onGenerateNewPage(topic);
     }
   };
 

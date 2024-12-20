@@ -1,9 +1,11 @@
 export class WikiNode {
   public outlinks: string[];
+  private linkMappings: Record<string, string | null> = {};
 
   constructor(
     public topic: string,
-    public content: string | null = null
+    public content: string | null = null,
+    public aliases: string[] = [],
   ) {
     this.outlinks = this.extractOutlinks();
   }
@@ -22,6 +24,14 @@ export class WikiNode {
     const linkRegex = /<link>(.*?)<\/link>/g;
     const matches = [...this.content.matchAll(linkRegex)];
     return matches.map(match => match[1]);
+  }
+
+  public setLinkMappings(mappings: Record<string, string | null>) {
+    this.linkMappings = mappings;
+  }
+
+  public getLinkTarget(link: string): string | null {
+    return this.linkMappings[link] || null;
   }
 }
 
@@ -64,4 +74,21 @@ export class WikiGraph {
     this.nodeMap.forEach((node) => callback(node, index++));
   }
 
+  public getAllTopics(): string[] {
+    return Array.from(this.nodeMap.keys());
+  }
+
+  public getAllAliases(): string[] {
+    // Get all aliases and topics 
+    return Array.from(this.aliasMap.keys()).concat(this.getAllTopics());
+  }
+
+  public getLinkedNodes(topic: string): WikiNode[] {
+    const node = this.getNode(topic);
+    if (!node) return [];
+    
+    return node.outlinks.map(link => 
+      this.getNode(link) || new WikiNode(link)
+    );
+  }
 }

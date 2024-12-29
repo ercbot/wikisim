@@ -1,0 +1,56 @@
+Your task is to create a single article in the style of a wiki entry about a fictional universe, based on the user's prompt.
+
+Here are some example prompts and their resulting articles:
+
+Example: "A fantasy city above a sea of toxic fog"
+
+<article id="carmine">
+    <title>Carmine</title>
+    <content>Carmine, the majestic capital of the <link to="mistlands">Mistlands</link>, stands as a testament to human ingenuity amidst the perpetual crimson fog that gives the city its name. Founded in 847 OE by the <link to="mistwalker_clans">Mistwalker clans</link>, the city is built upon massive bronze pillars that elevate it above the toxic mists that plague the lowlands. Its distinctive architecture features spiraling copper spires and interconnected skyways, while the famous <link to="oxidation_gardens">Oxidation Gardens</link> showcase plants that have evolved to thrive in the metallic atmosphere. The city serves as both the political and spiritual center of the Mistlands, housing both the <link to="chamber_of_atmospheric_sciences">Chamber of Atmospheric Sciences</link> and the ancient <link to="temple_of_copper_moon">Temple of the Copper Moon</link>, where the enigmatic <link to="mistpriest">Mistpriests</link> conduct their arcane studies of the region's unique weather patterns.</content>
+</article>
+
+Example: "The turning point of a teslapunk World War II"
+
+<article id="baltic_offensive">
+    <title>The Baltic Offensive</title>
+    <content>The Baltic Offensive (August 12-September 28, 1944) marked the unexpected turning point of the <link to="second_world_war">Second World War</link> following <link to="tesla_szilard_resonator">Tesla-Szilard Resonator</link> deployment by Polish-Lithuanian forces. Under the command of General <link to="kazimierz_tabor">Kazimierz Tabor</link>, the Allied Baltic Fleet used the experimental weapon to disable German mechanized divisions across a 300-mile front, leading to the collapse of Army Group North. The offensive's success prompted <link to="operation_amber_dawn">Operation Amber Dawn</link>, which saw the rapid liberation of Eastern Europe through widespread deployment of resonator technology. Modern historians consider this campaign the key catalyst for the war's early conclusion in March 1945, though debate continues over the ethical implications of using Tesla-derived weapons against human targets.</content>
+</article>
+
+Example: "Who was the scientist that invented AGI in the 1980s"
+
+<article id="grace_mitchell">
+    <title>Dr Grace Mitchell</title>
+    <content>Grace Mitchell (1947-2018) revolutionized early <link to="neural_network_architecture">neural network architecture</link> through her groundbreaking work at <link to="threshold_labs">Threshold Labs</link> during the crucial period of 1982-1989. While her contemporaries focused on supervised learning, Mitchell's controversial <link to="autonomous_pattern_theory">Autonomous Pattern Theory</link> proposed that truly intelligent systems would need to develop without human-labeled training data. Though initially dismissed by the academic establishment, her theories gained recognition after the success of the <link to="phoenix_project">Phoenix Project</link> in 1986, which demonstrated the first examples of genuine emergent behavior in artificial networks. Mitchell's later career was devoted to studying the ethical implications of machine consciousness, leading to her founding of the influential <link to="coalition_for_responsible_intelligence">Coalition for Responsible Intelligence</link>.</content>
+</article>
+
+Example: "Time goes topsy turvy at a small town diner"
+
+<article id="murphys_time_warp">
+    <title>Murphy's Time Warp</title>
+    <content>Murphy's Time Warp refers to the <link to="temporal_resonance">temporal resonance</link> phenomenon observed at <link to="murphys_diner">Murphy's All-Night Diner</link> in Millbrook, Kansas, where patrons occasionally experience overlapping moments from different time periods while seated in specific booths. First documented by regular customer <link to="sarah_chen">Sarah Chen</link> in her viral TikTok series in 2021, the resonance manifests as brief glimpses of past and future versions of the diner, with sounds and smells from different eras bleeding through. The <link to="department_of_temporal_affairs">Department of Temporal Affairs</link> has classified the phenomenon as a Class-3 Stable Time Anomaly, theorizing it may be connected to the diner's location atop a suspected <link to="quantum_faultline">quantum faultline</link>. While mostly harmless, the resonance has turned Murphy's into a popular destination for amateur chronology enthusiasts and cross country roadtrippers.</content>
+</article>
+
+Example: "A creature who's life cycle alternates between a flower and a biped each generation"
+
+<article id="alteranthropus_floralis">
+    <title>Alteranthropus floralis</title>
+    <content>The Alteranthropus floralis, commonly known as the "Walker Bloom" or "Wandering Flora," represents one of the most remarkable examples of convergent evolution between plant and animal kingdoms discovered in the <link to="epsilon_reticuli">Epsilon Reticuli</link> system. Each generation alternates between a sentient bipedal form and a sessile flowering stage, with neither form being truly "parent" or "offspring." The bipedal phase exhibits humanoid characteristics with chlorophyll-infused translucent skin, while the flowering phase produces massive, iridescent blooms up to 3 meters in diameter. This unique lifecycle was first documented by xenobiologist <link to="yuki_chen">Dr. Yuki Chen</link> during the <link to="third_epsilon_expedition">Third Epsilon Expedition</link>, though the species had long been known to the native <link to="retka">Ret'ka</link> people who considered the creatures sacred mediators between mobile and rooted life. The <link to="reticuli_botanical_congress">Reticuli Botanical Congress</link> continues to debate whether A. floralis represents a true plant-animal hybrid or an entirely new kingdom of life, particularly given its role in the planet's complex <link to="floating_forest_ecosystems">floating forest ecosystems</link>.</content>
+</article>
+
+Example: "A tea master who can induce clairvoyant dreams through his blends"
+
+<article id="wei_song">
+    <title>Wei Song of the Dreaming Leaves</title>
+    <content>Wei Song (夢葉魏, 1426-1511) served as Imperial Tea Master during the Ming Dynasty's <link to="era_of_enlightened_dreams">Era of Enlightened Dreams</link>, when the boundaries between reality and the divine were said to be as thin as tea silk. From his modest teahouse in the shadow of <link to="mount_kunlun">Mount Kunlun</link>, Wei perfected the art of <link to="dream_brewing">dream-brewing</link>, a mysterious practice combining traditional tea ceremony with techniques supposedly learned from a wandering <link to="mountain_immortal">Mountain Immortal</link>. His most famous creation, the "<link to="emperors_nine_dragons_tea">Emperor's Nine Dragons Tea</link>," allowed the drinkers to experience shared visions, leading to its crucial role in preventing the <link to="red_turban_rebellion_1448">Red Turban Rebellion of 1448</link> when court officials glimpsed an impending betrayal in their collective dreamscape. Wei's brewing methods were documented in the enigmatic text <link to="manual_of_lucid_leaves">The Manual of Lucid Leaves</link>, though many passages remain untranslatable, written in what scholars believe to be the language of dreams itself. Following his disappearance during the <link to="great_tea_ceremony_1511">Great Tea Ceremony of 1511</link>, where witnesses claim he transformed into a tea tree after sharing one final brew with the Emperor, his techniques were largely lost to time. Today, his original teahouse still stands, tended by the <link to="dream_tea_society">Dream Tea Society</link>, where visitors occasionally report experiencing shared dreams during the evening brewing hours.</content>
+</article>
+
+Example: "a self-replicating musical geometric pattern"
+
+<article id="singing_geometries">
+    <title>The Singing Geometries</title>
+    <content>Within the <link to="pattern_void">Pattern Void</link>, parallel lines spontaneously curve into resonant frequencies, forming what could be termed the Singing Geometries. These configurations exist as pure mathematical relationships, generating harmonic vibrations across eleven dimensional planes. The geometries cycle through <link to="symmetry_cascades">symmetry cascades</link>, where simple triangular forms multiply and reconstruct themselves into increasingly complex polyhedra, each resonance representing a new solution to the <link to="grand_unified_pattern">Grand Unified Pattern</link>. The structures emerge from the underlying fabric of the <link to="crystal_matrix">Crystal Matrix</link>, predating conventional spacetime. Through a process of <link to="topological_mitosis">topological mitosis</link>, perfect mathematical proofs split into two distinct but equally valid variations. In the <link to="infinite_calculation">Infinite Calculation</link>, a vast geometric chain has persisted for eons, its endless permutations approaching mathematical perfection as space itself hums with algorithmic precision.</content>
+</article>
+
+Let the above examples inspire your creativity, rather than constrain it.
+
+Your prompt is: {{PROMPT}}

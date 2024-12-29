@@ -10,7 +10,7 @@ import ActionButton from './components/srcl/ActionButton'
 import { WikiGraph, WikiNode } from './utils/wiki-types';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<string>('');
+  const [currentPageId, setCurrentPageId] = useState<string>('');
   const [graph, setGraph] = useState<WikiGraph>(new WikiGraph());
   const [recentPages, setRecentPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,21 +22,31 @@ function App() {
     document.body.classList.add('theme-light');
   }, []);
 
-  const handlePageChange = (topic: string) => {
+  const handlePageChange = (id: string) => {
     setRecentPages(prevRecent => {
-      const newRecent = [currentPage, ...prevRecent.filter(p => p !== currentPage)].slice(0, 5);
+      const newRecent = [currentPageId, ...prevRecent.filter(p => p !== currentPageId)].slice(0, 5);
       return newRecent;
     });
-    setCurrentPage(topic);
+    setCurrentPageId(id);
   };
 
-  const handleGenerateNewPage = async (topic: string) => {
+  const handleGenerateNewPage = async (newArticleSlug: string) => {
     setLoading(true);
     setError(null);
     try {
-      handlePageChange(topic);
-      const node = await generateNewPage(topic, recentPages, graph, initialPrompt);
+      handlePageChange(newArticleSlug);
+      const node = await generateNewPage(graph.getNode(newArticleSlug), recentPages, graph, initialPrompt);
       graph.addNode(node);
+
+      // Add placeholder nodes for outlinks
+      for (const linkedNodeId of node.outlinks) {
+        if (!graph.hasNode(linkedNodeId)) {
+          // Create an Emply Node where the outlinks go to
+          const placeholderNode = new WikiNode(linkedNodeId)
+          graph.addNode(placeholderNode)
+        }
+      }
+
       setGraph(graph);
     } catch (error) {
       console.error('Error generating page:', error);
@@ -46,23 +56,36 @@ function App() {
     }
   };
 
-  const handleWorldPromptSubmit = async (prompt: string) => {
+  const handleLinkClick = (node_id: string) => {
+    const clickedNode = graph.getNode(node_id);
+
+    if (clickedNode.isGenerated) {
+      handlePageChange(clickedNode.id);
+    } else {
+      handleGenerateNewPage(clickedNode.id);
+    }
+  };
+
+  // Generating the Initial page and setting up the Wiki
+  const handleGenerateInitialPage = async (prompt: string) => {
     setLoading(true);
     setError(null);
     try {
       setInitialPrompt(prompt);
       const node = await generateInitialPage(prompt);
       graph.addNode(node);
-      // Add in the nodes that were linked to, but haven't been generated yet
-      const linkedNodes = graph.getLinkedNodes(node.topic);
-      for (const linkedNode of linkedNodes) {
-        if (!graph.hasNode(linkedNode.topic)) {
-          graph.addNode(linkedNode);
+      
+      // Add placeholder nodes for outlinks
+      for (const linkedNodeId of node.outlinks) {
+        if (!graph.hasNode(linkedNodeId)) {
+          // Create an Emply Node where the outlinks go to
+          const placeholderNode = new WikiNode(linkedNodeId)
+          graph.addNode(placeholderNode)
         }
       }
 
       setGraph(graph);
-      setCurrentPage(node.topic);
+      setCurrentPageId(node.id);
     } catch (error) {
       console.error('Error generating initial page:', error);
       setError(error instanceof Error ? error : new Error('Unknown error occurred'));
@@ -72,7 +95,7 @@ function App() {
   };
 
   const handleReset = () => {
-    setCurrentPage('');
+    setCurrentPageId('');
     setGraph(new WikiGraph());
     setRecentPages([]);
     setInitialPrompt('');
@@ -124,7 +147,7 @@ function App() {
         <div className='max-h-[calc(100vh-12rem)] overflow-y-auto'>
           {graph.nodeCount === 0 ? (
             <WorldPrompt 
-              onSubmit={handleWorldPromptSubmit}
+              onSubmit={handleGenerateInitialPage}
               loading={loading}
             />
           ) : (
@@ -134,17 +157,15 @@ function App() {
                 <div className="h-[calc(100vh-12rem)]">
                   <WikiGraphDisplay
                     graph={graph}
-                    currentPage={currentPage}
-                    onNodeClick={handlePageChange}
+                    currentPageId={currentPageId}
+                    onNodeClick={handleLinkClick}
                   />
                 </div>
               ) : (
                 <WikiPage 
-                  currentTopic={currentPage}
-                  content={graph.getNode(currentPage)?.content ?? ''}
+                  currentNodeId={currentPageId}
                   loading={loading}
-                  onPageChange={handlePageChange}
-                  onGenerateNewPage={handleGenerateNewPage}
+                  onLinkClick={handleLinkClick}
                   graph={graph}
                 />
               )}

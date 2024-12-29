@@ -22,7 +22,7 @@ import './graph/graph.css';
 
 interface WikiGraphProps {
   graph: WikiGraph;
-  currentPage: string;
+  currentPageId: string;
   onNodeClick: (topic: string) => void;
 }
 
@@ -31,7 +31,7 @@ const edgeTypes = {
 };
 
 // Create a wrapper component that uses the hooks
-const GraphComponent = ({ graph, currentPage, onNodeClick }: WikiGraphProps) => {
+const GraphComponent = ({ graph, currentPageId, onNodeClick }: WikiGraphProps) => {
   const { fitView } = useReactFlow();
   
   // Create initial nodes
@@ -46,14 +46,14 @@ const GraphComponent = ({ graph, currentPage, onNodeClick }: WikiGraphProps) => 
       200;
     
     graph.forEachNode((node, index) => {
-      const isActive = node.topic === currentPage;
+      const isActive = node.id === currentPageId;
       const angle = (index / graph.nodeCount) * 2 * Math.PI;
 
       nodes.push({
-        id: node.topic,
+        id: node.id,
         data: { 
-          label: node.topic,
-          isActive: node.topic === currentPage
+          label: node.title || node.id,
+          isActive: node.id === currentPageId
         },
         position: {
           x: Math.cos(angle) * radius,
@@ -72,7 +72,7 @@ const GraphComponent = ({ graph, currentPage, onNodeClick }: WikiGraphProps) => 
       });
     });
     return nodes;
-  }, [graph, currentPage]);
+  }, [graph, currentPageId]);
 
   // Create initial edges
   const createInitialEdges = useCallback(() => {
@@ -81,8 +81,8 @@ const GraphComponent = ({ graph, currentPage, onNodeClick }: WikiGraphProps) => 
       node.outlinks.forEach(target => {
         if (graph.hasNode(target)) {
           edges.push({
-            id: `${node.topic}-${target}`,
-            source: node.topic,
+            id: `${node.id}-${target}`,
+            source: node.id,
             target,
             type: 'floating',
             style: { stroke: '#000000' },
@@ -110,14 +110,14 @@ const GraphComponent = ({ graph, currentPage, onNodeClick }: WikiGraphProps) => 
       ...node,
       data: {
         ...node.data,
-        isActive: node.id === currentPage
+        isActive: node.id === currentPageId
       },
       style: {
         ...node.style,
-        background: node.id === currentPage ? '#5cff3b' : '#e0e0e0',
+        background: node.id === currentPageId ? '#5cff3b' : '#e0e0e0',
       },
     })));
-  }, [currentPage, setNodes]);
+  }, [currentPageId, setNodes]);
 
   const handleNodeClick = useCallback(
     (_: any, node: Node) => {

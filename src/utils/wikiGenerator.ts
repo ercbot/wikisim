@@ -10,9 +10,17 @@ const google = createGoogleGenerativeAI({
 
 const model = google("models/gemini-2.0-flash-exp");
 
-const system_prompt = (await import('../prompts/system_prompt.txt?raw')).default;
-const initial_article_prompt = (await import('../prompts/initial_article.txt?raw')).default;
-const clicked_article_prompt = (await import('../prompts/clicked_article.txt?raw')).default;
+// Initialize prompts as let variables
+let system_prompt = '';
+let initial_article_prompt = '';
+let clicked_article_prompt = '';
+
+// Create an initialization function
+export async function initializePrompts() {
+  system_prompt = (await import('../prompts/system_prompt.txt?raw')).default;
+  initial_article_prompt = (await import('../prompts/initial_article.txt?raw')).default;
+  clicked_article_prompt = (await import('../prompts/clicked_article.txt?raw')).default;
+}
 
 // Add custom error class
 export class QuotaExceededError extends Error {

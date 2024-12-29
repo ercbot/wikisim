@@ -5,7 +5,7 @@ import WorldPrompt from './components/WorldPrompt'
 import Card from './components/srcl/Card'
 import WikiGraphDisplay from './components/WikiGraphDisplay'
 
-import { generateNewPage, generateInitialPage, QuotaExceededError } from './utils/wikiGenerator'
+import { generateNewPage, generateInitialPage, QuotaExceededError, initializePrompts } from './utils/wikiGenerator'
 import ActionButton from './components/srcl/ActionButton'
 import { WikiGraph, WikiNode } from './utils/wiki-types';
 
@@ -20,6 +20,10 @@ function App() {
 
   useEffect(() => {
     document.body.classList.add('theme-light');
+  }, []);
+
+  useEffect(() => {
+    initializePrompts().catch(console.error);
   }, []);
 
   const handlePageChange = (id: string) => {

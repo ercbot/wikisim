@@ -13,7 +13,7 @@ import {
   addEdge,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { WikiGraphData } from '../types';
+import { WikiGraph } from '../utils/wiki-types.ts';
 
 // Assuming the components are correctly typed in their own files
 import FloatingEdge from './graph/FloatingEdge.tsx';
@@ -21,8 +21,8 @@ import FloatingConnectionLine from './graph/FloatingConnectionLine.tsx';
 import './graph/graph.css';
 
 interface WikiGraphProps {
-  pages: WikiGraphData;
-  currentPage: string;
+  graph: WikiGraph;
+  currentPageId: string;
   onNodeClick: (topic: string) => void;
 }
 
@@ -31,7 +31,7 @@ const edgeTypes = {
 };
 
 // Create a wrapper component that uses the hooks
-const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => {
+const GraphComponent = ({ graph, currentPageId, onNodeClick }: WikiGraphProps) => {
   const { fitView } = useReactFlow();
   
   // Create initial nodes
@@ -39,21 +39,21 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
     const nodes: Node[] = [];
     
     // Calculate radius based on number of nodes
-    const nodeCount = Object.keys(pages).length;
+    const nodeCount = graph.nodeCount;
     const isMobile = window.innerWidth < 768;
     const radius = isMobile ? 
       Math.min(window.innerHeight / 4, window.innerWidth / 2) : 
       200;
     
-    Object.values(pages).forEach((page, index) => {
-      const isActive = page.topic === currentPage;
-      const angle = (index / Object.keys(pages).length) * 2 * Math.PI;
+    graph.forEachNode((node, index) => {
+      const isActive = node.id === currentPageId;
+      const angle = (index / graph.nodeCount) * 2 * Math.PI;
 
       nodes.push({
-        id: page.topic,
+        id: node.id,
         data: { 
-          label: page.topic,
-          isActive: page.topic === currentPage
+          label: node.title || node.id,
+          isActive: node.id === currentPageId
         },
         position: {
           x: Math.cos(angle) * radius,
@@ -72,17 +72,17 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
       });
     });
     return nodes;
-  }, [pages, currentPage]);
+  }, [graph, currentPageId]);
 
   // Create initial edges
   const createInitialEdges = useCallback(() => {
     const edges: Edge[] = [];
-    Object.values(pages).forEach((page) => {
-      page.outlinks.forEach(target => {
-        if (pages[target]) {
+    graph.forEachNode((node) => {
+      node.outlinks.forEach(target => {
+        if (graph.hasNode(target)) {
           edges.push({
-            id: `${page.topic}-${target}`,
-            source: page.topic,
+            id: `${node.id}-${target}`,
+            source: node.id,
             target,
             type: 'floating',
             style: { stroke: '#000000' },
@@ -98,7 +98,7 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
       });
     });
     return edges;
-  }, [pages]);
+  }, [graph]);
 
   // Initialize states with created nodes
   const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
@@ -110,14 +110,14 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
       ...node,
       data: {
         ...node.data,
-        isActive: node.id === currentPage
+        isActive: node.id === currentPageId
       },
       style: {
         ...node.style,
-        background: node.id === currentPage ? '#5cff3b' : '#e0e0e0',
+        background: node.id === currentPageId ? '#5cff3b' : '#e0e0e0',
       },
     })));
-  }, [currentPage, setNodes]);
+  }, [currentPageId, setNodes]);
 
   const handleNodeClick = useCallback(
     (_: any, node: Node) => {
@@ -166,7 +166,7 @@ const GraphComponent = ({ pages, currentPage, onNodeClick }: WikiGraphProps) => 
 };
 
 // Main component that provides the ReactFlow context
-const WikiGraph = (props: WikiGraphProps) => {
+const WikiGraphDisplay = (props: WikiGraphProps) => {
   return (
     <ReactFlowProvider>
       <div className="w-full h-full">
@@ -176,4 +176,4 @@ const WikiGraph = (props: WikiGraphProps) => {
   );
 };
 
-export default WikiGraph; 
+export default WikiGraphDisplay; 

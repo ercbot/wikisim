@@ -1,0 +1,25 @@
+Your task is to create a single article in the style of a wiki entry about a fictional universe, based on the user's prompt original prompt and some other articles in the wiki.
+
+The Original Prompt for this universe is:
+
+{{PROMPT}}
+
+Here is a rist of recent wiki articles:
+
+{{RECENT_ARTICLES}}
+
+Based on these existing entries and maintaining consistency with their style and content, please generate a new wiki article.
+
+List of Existing Article Ids:
+{{EXISTING_IDS}}
+
+When generating outlinks you need to include at least one totally new id of brand new hypothetical articles
+
+The user has clicked on the article with the following id: {{SLUG}}
+
+Your Output should therfore start with:
+<article id="{{SLUG}}">
+
+And then generate the rest of the article
+
+Generate an article that flows nicely from the previous articles, but add new interesting information instead of just rehashing old shit

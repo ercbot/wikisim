@@ -1,66 +1,66 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Card from './srcl/Card';
 import MatrixLoader from './srcl/MatrixLoader';
 import ButtonLink from './ButtonLink';
-import { WikiGraphData } from '../types';
+import { WikiGraph, WikiNode } from '../utils/wiki-types';
 
 interface WikiPageProps {
-  currentTopic: string;
-  content: string;
+  currentNodeId: string;
   loading: boolean;
-  onPageChange: (topic: string) => void;
-  onGenerateNewPage: (topic: string) => void;
-  pages: WikiGraphData;
+  onLinkClick: (nodeId: string) => void;
+  graph: WikiGraph;
 }
 
 const WikiPage: React.FC<WikiPageProps> = ({ 
-  currentTopic, 
-  content, 
+  currentNodeId,
   loading,
-  onPageChange, 
-  onGenerateNewPage,
-  pages 
+  onLinkClick,
+  graph 
 }) => {
-  const handleLinkClick = (topic: string) => {
-    // Convert topic to Title Case
-    const titleCaseTopic = topic.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-    
-    console.log('Link clicked:', titleCaseTopic);
-    if (pages[titleCaseTopic]?.content) {
-      console.log('Navigating to existing page');
-      onPageChange(titleCaseTopic);
-    } else {
-      console.log('Generating new page');
-      onGenerateNewPage(titleCaseTopic);
-    }
-  };
+
+  const currentNode = graph.getNode(currentNodeId)
 
   const renderContent = () => {
-    if (!content) return null;
+    if (!currentNode.content) return null;
 
-    const parts = content.split(/(<link>.*?<\/link>)/);
-    return parts.map((part, index) => {
-      if (part.startsWith('<link>') && part.endsWith('</link>')) {
-        const term = part.replace('<link>', '').replace('</link>', '');
-        return (
-          <ButtonLink
-            key={index}
-            onClick={() => handleLinkClick(term)}
-          >
-            {term}
-          </ButtonLink>
-        );
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<root>${currentNode.content}</root>`, 'text/xml');
+    const root = doc.documentElement;
+    
+    const processNode = (node: Node): ReactNode[] => {
+      const children: ReactNode[] = [];
+      
+      for (let i = 0; i < node.childNodes.length; i++) {
+        const child = node.childNodes[i];
+        
+        if (child.nodeType === Node.TEXT_NODE) {
+          // Text node
+          children.push(<span key={i}>{child.textContent}</span>);
+        } else if (child.nodeName === 'link' && child instanceof Element) {
+          // Link node - using type assertion after checking nodeName
+          const target = child.getAttribute('to');
+          if (target) {
+            children.push(
+              <ButtonLink
+                key={i}
+                onClick={() => onLinkClick(target)}
+              >
+                {child.textContent}
+              </ButtonLink>
+            );
+          }
+        }
       }
-      return <span key={index}>{part}</span>;
-    });
+      
+      return children;
+    };
+  
+    return processNode(root);
   };
 
   return (
-    <div className="max-w-2xl w-full mx-auto space-y-8 pt-24">
-      
-        <h1 className="text-4xl font-bold text-center">{currentTopic}</h1>
+    <div className="max-w-2xl w-full mx-auto space-y-8 pt-24">   
+        <h1 className="text-4xl sm:font-bold text-center">{currentNode.title}</h1>
         
         {loading ? (
             <MatrixLoader rows={15}/>

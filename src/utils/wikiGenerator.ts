@@ -1,14 +1,5 @@
-import { generateText, generateObject } from 'ai';
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { WikiGraph, WikiNode } from './wiki-types';
 import { parseWikiNode } from './parser';
-import { z } from 'zod';
-
-const google = createGoogleGenerativeAI({
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY,
-});
-
-const model = google("models/gemini-2.0-flash-exp");
 
 // Initialize prompts as let variables
 let system_prompt = '';
@@ -31,18 +22,46 @@ export class QuotaExceededError extends Error {
 }
 
 async function generateWithSystemPrompt(prompt: string) {
-  try {
-    const { text } = await generateText({
-      model: model,
-      system: system_prompt,
-      prompt: prompt
+  try {    
+    const requestBody = {
+      prompt,
+      systemPrompt: system_prompt
+    };
+
+    const bodyString = JSON.stringify(requestBody);
+
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: bodyString
     });
-    return text;
-  } catch (error: unknown) {
-    if (error instanceof Error && 
-        (error.message.includes('Resource has been exhausted') || 
-         error.message.includes('quota'))) {
-      throw new QuotaExceededError();
+
+    // Log the raw response
+    const responseText = await response.text();
+    
+    if (!response.ok) {
+      try {
+        const error = JSON.parse(responseText);
+        if (response.status === 429) {
+          throw new QuotaExceededError();
+        }
+        throw new Error(error.message);
+      } catch (e) {
+        throw new Error(`Server error: ${responseText}`);
+      }
+    }
+
+    try {
+      const { text } = JSON.parse(responseText);
+      return text;
+    } catch (e) {
+      throw new Error(`Failed to parse response: ${responseText}`);
+    }
+  } catch (error) {
+    if (error instanceof QuotaExceededError) {
+      throw error;
     }
     console.error('Error generating text:', error);
     throw error;
@@ -79,11 +98,8 @@ export async function generateNewPage(
 
     const text = await generateWithSystemPrompt(customizedPrompt);
 
-    console.log(text)
-
     const node = parseWikiNode(text);
     
-    console.log(node)
     return node;
   } catch (error) {
     console.error('Error generating page:', error);
